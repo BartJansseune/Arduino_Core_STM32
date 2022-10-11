@@ -172,7 +172,6 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
         }
       }
     }
-
     /* Check if user wants to change HSE RTC prescaler whereas HSE is enabled */ 
     temp_reg = (RCC->CR & RCC_CR_RTCPRE);
     if ((temp_reg != (PeriphClkInit->RTCClockSelection & RCC_CR_RTCPRE))

@@ -78,7 +78,30 @@ enum {
   PA8,  //D33
   PEND
 };
-
+#ifdef PWR_WAKEUP_PIN1
+#define SYS_WKUP1 PA_0
+#endif
+#ifdef PWR_WAKEUP_PIN2
+#define SYS_WKUP2 PC_13
+#endif
+#ifdef PWR_WAKEUP_PIN3
+#define SYS_WKUP3 NC
+#endif
+#ifdef PWR_WAKEUP_PIN4
+#define SYS_WKUP4 NC
+#endif
+#ifdef PWR_WAKEUP_PIN5
+#define SYS_WKUP5 NC
+#endif
+#ifdef PWR_WAKEUP_PIN6
+#define SYS_WKUP6 NC
+#endif
+#ifdef PWR_WAKEU7_PIN7
+#define SYS_WKUP3 NC
+#endif
+#ifdef PWR_WAKEUP_PIN8
+#define SYS_WKUP8 NC
+#endif
 // This must be a literal with the same value as PEND
 #define NUM_DIGITAL_PINS        34
 // This must be a literal with a value less than or equal to to MAX_ANALOG_INPUTS

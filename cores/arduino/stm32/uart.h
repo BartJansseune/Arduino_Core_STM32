@@ -280,6 +280,9 @@ struct serial_s {
 void uart_init(serial_t *obj);
 void uart_deinit(serial_t *obj);
 size_t uart_write(serial_t *obj, uint8_t data, uint16_t size);
+#if defined(HAL_PWR_MODULE_ENABLED) && (defined(UART_IT_WUF) || defined(LPUART1_BASE))
+void uart_config_lowpower(serial_t *obj);
+#endif
 int uart_getc(serial_t *obj, unsigned char* c);
 void uart_attach_rx_callback(serial_t *obj, void (*callback)(serial_t*));
 void uart_attach_tx_callback(serial_t *obj, int (*callback)(serial_t*));

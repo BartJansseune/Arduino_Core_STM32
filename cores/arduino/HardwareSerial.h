@@ -103,9 +103,9 @@ class HardwareSerial : public Stream
     unsigned char _rx_buffer[SERIAL_RX_BUFFER_SIZE];
     unsigned char _tx_buffer[SERIAL_TX_BUFFER_SIZE];
 
-    serial_t _serial;
 
   public:
+    serial_t _serial;
     HardwareSerial(uint32_t _rx, uint32_t _tx);
     HardwareSerial(PinName _rx, PinName _tx);
     HardwareSerial(void* peripheral);
@@ -136,8 +136,11 @@ class HardwareSerial : public Stream
     // Interrupt handlers
     static void _rx_complete_irq(serial_t* obj);
     static int _tx_complete_irq(serial_t* obj);
+	void configForLowPower(void);
   private:
     void init(void);
+	bool _rx_enabled;
+    unsigned long _baud;
 };
 
 extern HardwareSerial Serial1;

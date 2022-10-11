@@ -10,6 +10,7 @@ extern "C"{
 #endif // __cplusplus
 #include "analog.h"
 #include "clock.h"
+#include "backup.h"
 #include "core_callback.h"
 #include "digital_io.h"
 #include "hal_uart_emul.h"

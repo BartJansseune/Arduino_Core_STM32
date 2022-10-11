@@ -69,20 +69,46 @@
 #if !defined(DEBUG_UART_BAUDRATE)
 #define DEBUG_UART_BAUDRATE 9600
 #endif
-
-// @brief uart caracteristics
-#if defined(STM32F4xx)
-#define UART_NUM (10)
-#elif defined(STM32F0xx) || defined(STM32F7xx)
-#define UART_NUM (8)
-#elif defined(STM32F2xx)
-#define UART_NUM (6)
-#elif defined(STM32F1xx) || defined(STM32F3xx) ||\
-      defined(STM32L0xx) || defined(STM32L1xx) || defined(STM32L4xx)
-#define UART_NUM (5)
-#else
-#error "Unknown Family - unknown UART_NUM"
+/* @brief uart caracteristics */
+typedef enum {
+#if defined(USART1_BASE)
+  UART1_INDEX,
 #endif
+#if defined(USART2_BASE)
+  UART2_INDEX,
+#endif
+#if defined(USART3_BASE)
+  UART3_INDEX,
+#endif
+#if defined(UART4_BASE) || defined(USART4_BASE)
+  UART4_INDEX,
+#endif
+#if defined(UART5_BASE) || defined(USART5_BASE)
+  UART5_INDEX,
+#endif
+#if defined(USART6_BASE)
+  UART6_INDEX,
+#endif
+#if defined(UART7_BASE) || defined(USART7_BASE)
+  UART7_INDEX,
+#endif
+#if defined(UART8_BASE) || defined(USART8_BASE)
+  UART8_INDEX,
+#endif
+#if defined(UART9_BASE)
+  UART9_INDEX,
+#endif
+#if defined(UART10_BASE) || defined(USART10_BASE)
+  UART10_INDEX,
+#endif
+#if defined(LPUART1_BASE)
+  LPUART1_INDEX,
+#endif
+#if defined(LPUART2_BASE)
+  LPUART2_INDEX,
+#endif
+  UART_NUM
+} uart_index_t;
 
 static UART_HandleTypeDef *uart_handlers[UART_NUM] = {NULL};
 static void (*rx_callback[UART_NUM])(serial_t*);
@@ -436,6 +462,83 @@ size_t uart_write(serial_t *obj, uint8_t data, uint16_t size)
     return 0;
   }
 }
+#if defined(HAL_PWR_MODULE_ENABLED) && (defined(UART_IT_WUF) || defined(LPUART1_BASE))
+/**
+  * @brief  Function called to configure the uart interface for low power
+  * @param  obj : pointer to serial_t structure
+  * @retval None
+  */
+void uart_config_lowpower(serial_t *obj)
+{
+  if (obj == NULL) {
+    return;
+  }
+  /* Ensure HSI clock is enable */
+  enableClock(HSI_CLOCK);
+
+  //hsem_lock(CFG_HW_RCC_CRRCR_CCIPR_SEMID, HSEM_LOCK_DEFAULT_RETRY);
+  /* Configure HSI as source clock for low power wakeup clock */
+  switch (obj->index) {
+#if defined(USART1_BASE)
+    case UART1_INDEX:
+      if (__HAL_RCC_GET_USART1_SOURCE() != RCC_USART1CLKSOURCE_HSI) {
+        __HAL_RCC_USART1_CONFIG(RCC_USART1CLKSOURCE_HSI);
+      }
+      break;
+#endif
+#if defined(USART2_BASE) && defined(__HAL_RCC_USART2_CONFIG)
+    case UART2_INDEX:
+      if (__HAL_RCC_GET_USART2_SOURCE() != RCC_USART2CLKSOURCE_HSI) {
+        __HAL_RCC_USART2_CONFIG(RCC_USART2CLKSOURCE_HSI);
+      }
+      break;
+#endif
+#if defined(USART3_BASE) && defined(__HAL_RCC_USART3_CONFIG)
+    case UART3_INDEX:
+      if (__HAL_RCC_GET_USART3_SOURCE() != RCC_USART3CLKSOURCE_HSI) {
+        __HAL_RCC_USART3_CONFIG(RCC_USART3CLKSOURCE_HSI);
+      }
+      break;
+#endif
+#if defined(UART4_BASE) && defined(__HAL_RCC_UART4_CONFIG)
+    case UART4_INDEX:
+      if (__HAL_RCC_GET_UART4_SOURCE() != RCC_UART4CLKSOURCE_HSI) {
+        __HAL_RCC_UART4_CONFIG(RCC_UART4CLKSOURCE_HSI);
+      }
+      break;
+#endif
+#if defined(UART5_BASE) && defined(__HAL_RCC_UART5_CONFIG)
+    case UART5_INDEX:
+      if (__HAL_RCC_GET_UART5_SOURCE() != RCC_UART5CLKSOURCE_HSI) {
+        __HAL_RCC_UART5_CONFIG(RCC_UART5CLKSOURCE_HSI);
+      }
+      break;
+#endif
+#if defined(LPUART1_BASE) && defined(__HAL_RCC_LPUART1_CONFIG)
+    case LPUART1_INDEX:
+#ifdef __HAL_RCC_LPUART1_CLKAM_ENABLE
+      __HAL_RCC_LPUART1_CLKAM_ENABLE();
+#endif
+      if (__HAL_RCC_GET_LPUART1_SOURCE() != RCC_LPUART1CLKSOURCE_HSI) {
+        __HAL_RCC_LPUART1_CONFIG(RCC_LPUART1CLKSOURCE_HSI);
+      }
+      break;
+#endif
+#if defined(LPUART2_BASE) && defined(__HAL_RCC_LPUART2_CONFIG)
+    case LPUART2_INDEX:
+      if (__HAL_RCC_GET_LPUART2_SOURCE() != RCC_LPUART2CLKSOURCE_HSI) {
+        __HAL_RCC_LPUART2_CONFIG(RCC_LPUART2CLKSOURCE_HSI);
+      }
+      break;
+#endif
+  }
+#if defined(UART_WAKEUP_EXTI_LINE)
+  /* Enable EXTI wakeup interrupt if defined */
+  LL_EXTI_EnableIT_0_31(UART_WAKEUP_EXTI_LINE);
+#endif
+  //hsem_unlock(CFG_HW_RCC_CRRCR_CCIPR_SEMID);
+}
+#endif
 
 /**
   * @brief  Function called to initialize the debug uart interface
@@ -883,6 +986,7 @@ void UART10_IRQHandler(void)
   HAL_UART_IRQHandler(uart_handlers[9]);
 }
 #endif
+
 
 #ifdef __cplusplus
 }
